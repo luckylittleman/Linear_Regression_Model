@@ -1,0 +1,24 @@
+# --- Virtual Environment ---
+# Never push your venv; it's large and specific to your laptop
+venv/
+env/
+ENV/
+
+# --- Python Cache ---
+# These are generated automatically and clutter the repo
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Environment Variables & Secrets ---
+# If you eventually use a .env file for DB passwords, block it now
+.env
+
+# --- OS Specific ---
+# System files from Linux or Mac
+.DS_Store
+.thumbs.db
+
+# --- Databases (Optional) ---
+# Only if you use a local SQLite file; PostgreSQL is handled separately
+*.sqlite3
