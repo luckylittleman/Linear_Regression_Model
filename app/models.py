@@ -7,7 +7,6 @@ class StudentRecord(Base):
     student_id = Column(String, unique=True, index=True)
     study_hours = Column(Float)
     prev_mean_grade = Column(Float)
-    att_rate = Column(Float)
     helb_status = Column(Boolean)
     sleep_hours = Column(Float)
     revision_intensity = Column(Integer)
