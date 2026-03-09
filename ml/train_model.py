@@ -5,7 +5,7 @@ import pandas as pd
 import joblib  # To save the model
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from app.database import engine
 
 def train_student_model():
@@ -28,17 +28,20 @@ def train_student_model():
 
     # 5. Evaluate the "Intelligence"
     predictions = model.predict(X_test)
-    mae = mean_absolute_error(y_test, predictions)
+    mse = mean_squared_error(y_test, predictions)
     r2 = r2_score(y_test, predictions)
+    msa=mean_absolute_error(y_test, predictions)
+    
 
     print(f"\n--- Model Performance ---")
     print(f"R-Squared Score: {r2:.4f}")
-    print(f"Mean Absolute Error: {mae:.2f} marks")
+    print(f"Mean Squared Error: {mse:.2f} marks")
+    print(f"Mean Absolute Error: {msa:.2f} marks")
     print("-------------------------\n")
 
     # 6. Save the model to a file
     joblib.dump(model, "student_model.pkl")
-    print("Model saved as 'student_model.pkl'. Milestone 2.3 Complete!")
+    print("Model saved as 'student_model.pkl'")
 
 if __name__ == "__main__":
     train_student_model()
