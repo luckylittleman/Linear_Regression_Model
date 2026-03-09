@@ -20,7 +20,7 @@ def live_train_demo():
     print(f"{'Epoch':<8} | {'MSE (Cost)':<12} | {'Weights (m1, m2, m3, m4)':<30}")
     print("-" * 60)
 
-    for epoch in range(1, 1001):  # Let's show 20 iterations
+    for epoch in range(1, 1001):  # Let's show 1000 iterations
         model.fit(X, y)
         predictions = model.predict(X)
         mse = mean_squared_error(y, predictions)
