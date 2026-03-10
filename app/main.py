@@ -4,6 +4,7 @@ from app import models
 import joblib
 import os
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 # THE AUTOMATIC BRIDGE: This creates the tables in PostgreSQL 
 # according to the new blueprints in models.py
@@ -14,7 +15,13 @@ app = FastAPI(
     description="Backend infrastructure for predicting academic performance using Multiple Linear Regression.",
     version="1.0.0"
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, you'd specify http://localhost:5173
+    allow_credentials=True,
+    allow_methods=["*"], # Allows POST, GET, etc.
+    allow_headers=["*"], # Allows headers like Content-Type
+)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Student Grade Predictor API. Database initiated on Littleman."}
