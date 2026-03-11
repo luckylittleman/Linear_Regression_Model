@@ -22,3 +22,7 @@ __pycache__/
 # --- Databases (Optional) ---
 # Only if you use a local SQLite file; PostgreSQL is handled separately
 *.sqlite3
+node_modules
+dist
+.env
+.DS_Store
