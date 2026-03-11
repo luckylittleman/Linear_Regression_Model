@@ -1,0 +1,27 @@
+:root {
+  --bg-main: #090a1e;
+  --bg-card: #151630;
+  --teal-primary: #2dd4bf;
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --border-color: #2b2d42;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.teal-glow {
+  color: var(--teal-primary);
+  text-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
+}
