@@ -26,7 +26,15 @@ def train_student_model():
     model = LinearRegression()
     model.fit(X_train, y_train)
 
-    # 5. Evaluate the "Intelligence"
+     #5. Extract Weights
+    coeffs = pd.DataFrame(model.coef_, X.columns, columns=['Coefficient'])
+    intercept = model.intercept_
+
+    print("--- Linear Regression Coefficients ---")
+    print(coeffs)
+    print(f"\nIntercept (Baseline): {intercept:.4f}")
+
+    # 6. Evaluate the "Intelligence"
     predictions = model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
     r2 = r2_score(y_test, predictions)
@@ -39,7 +47,7 @@ def train_student_model():
     print(f"Mean Absolute Error: {msa:.2f} marks")
     print("-------------------------\n")
 
-    # 6. Save the model to a file
+    # 7. Save the model to a file
     joblib.dump(model, "student_model.pkl")
     print("Model saved as 'student_model.pkl'")
 
