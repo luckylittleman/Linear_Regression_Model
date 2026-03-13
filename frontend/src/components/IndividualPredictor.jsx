@@ -131,7 +131,7 @@ const IndividualPredictor = () => {
               <div style={statRow}><span>Prev. Grade:</span> <span>{formData.prev_mean_grade}%</span></div>
               <div style={{...statRow, border: 'none'}}>
                 <span>Confidence:</span> 
-                <span style={{color: '#fbbf24'}}>0.9887 R²</span>
+                <span style={{color: '#fbbf24'}}>0.8374 R²</span>
               </div>
             </div>
             
