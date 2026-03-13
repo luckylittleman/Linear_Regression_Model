@@ -8,7 +8,7 @@ class StudentBase(BaseModel):
     
     # Original Features
     student_id: Optional[str] = None # Keep as optional if using reg_no as primary
-    study_hours: float = Field(ge=0, le=24)
+    study_hours: float = Field(ge=0, le=168)
     prev_mean_grade: float = Field(ge=0, le=100)
     helb_status: bool = False # Default to False if not sent by React
     sleep_hours: float = Field(ge=0, le=24)
