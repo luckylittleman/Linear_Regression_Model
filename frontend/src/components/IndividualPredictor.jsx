@@ -74,7 +74,7 @@ const IndividualPredictor = () => {
           </div>
           <div>
             <label style={labelStyle}><BookOpen size={14} /> Prev. Mean Grade (%)</label>
-            <input value={formData.prev_mean_grade} type="number" step="0.1" style={inputStyle} placeholder="e.g. 78.2" onChange={(e) => setFormData({...formData, prev_mean_grade: e.target.value})} />
+            <input value={formData.prev_mean_grade} type="number" step="0.1" max="168" style={inputStyle} placeholder="e.g. 78.2" onChange={(e) => setFormData({...formData, prev_mean_grade: e.target.value})} />
           </div>
         </div>
 
