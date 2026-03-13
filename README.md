@@ -1,60 +1,55 @@
-# 🎓 Student Grade Predictor (Multiple Linear Regression)
+# 🎓 Student Performance Forecasting System (MLR)
 
-This project implements a high-precision predictive analytics system to forecast student performance (Mean Score) based on academic and socio-economic factors. It is specifically optimized for the Kenyan higher education context.
+This project implements a high-precision predictive analytics system to forecast student performance (Mean Score) based on behavioral and academic factors. Optimized for the Kenyan higher education context.
 
-## 🚀 Project Status: Milestone 2 Complete ✅
-- [x] **Infrastructure**: PostgreSQL database integration and SQLAlchemy ORM setup.
-- [x] **Data Ingestion**: Successful migration of 10,000 student records into PostgreSQL.
-- [x] **ML Research**: Exploratory Data Analysis (EDA) and Correlation Heatmap generation.
-- [x] **Model Training**: Achieved a **0.9887 R-Squared** score using Multiple Linear Regression.
-- [x] **API Integration**: Functional `/predict` endpoint delivering real-time predictions.
-- [ ] **Milestone 3**: Frontend Dashboard & Visualization.
+## 🚀 Development Phases (SDLC)
+
+### 🔹 Phase 1: Research & Data Engineering
+- [x] **Exploratory Data Analysis (EDA)**: Generated Correlation Heatmaps to identify feature relationships.
+- [x] **Feature Engineering**: Dropped zero-variance features (e.g., constant attendance) and normalized behavioral metrics.
+- [x] **Synthetic Population Generation**: Created a 10,000-record dataset modeled with non-linear academic behaviors.
+
+### 🔹 Phase 2: Model Architecture & Optimization
+- [x] **Multiple Linear Regression (MLR)**: Initial implementation using Ordinary Least Squares (OLS).
+- [x] **Ridge Regularization**: Transitioned to Ridge Regression ($\alpha=1.0$) to penalize over-dominant weights and improve generalization.
+- [x] **Stochastic Modeling**: Introduced Gaussian noise and logarithmic study hours to mimic real-world unpredictability.
+
+### 🔹 Phase 3: Backend Infrastructure (Littleman-01)
+- [x] **API Development**: Built a high-performance REST API using **FastAPI**.
+- [x] **Schema Validation**: Implemented Pydantic V2 models with strict constraints (0-168h weekly study limits).
+- [x] **Persistence**: Integrated SQLite/PostgreSQL with SQLAlchemy ORM for batch record storage.
+
+### 🔹 Phase 4: Frontend & Dashboard Visualization
+- [x] **Interface Design**: Developed a dark-themed UI using **Vite + React**.
+- [x] **Real-time Inference**: Integrated Individual Predictor view with instant model feedback.
+- [x] **Batch Processing**: Built a CSV upload engine to process 10,000 students in a single transaction.
+
+### 🔹 Phase 5: Validation & Quality Assurance
+- [x] **Sensitivity Analysis**: Verified the model's high sensitivity to **Sleep Hours** (65.5% importance).
+- [x] **Case Study Testing**: Successfully validated the "Sleep Penalty" and "Historical Anchor" logic against 4 distinct student profiles.
+- [x] **UI/UX Polishing**: Fixed dynamic percentage rendering and responsive metric cards.
 
 ## 🧠 Machine Learning Intelligence
-The model was trained on **10,000 records** on **"Littleman"** using Scikit-Learn.
+The system utilizes a **Ridge Regression** engine to ensure that predictions remain grounded in historical performance while respecting the physiological limits of student effort.
 
-### Model Performance
-- **R-Squared ($R^2$): 0.9887** (Explains 98.87% of grade variance).
-- **Mean Absolute Error (MAE): 1.63 marks** (High precision prediction).
-- **Cost Function**: Mean Squared Error (MSE).
-- **Optimizer**: Gradient Descent.
-
-
-
-### Key Insights (Feature Selection)
-Analysis showed that **Previous Mean Grade (0.92 correlation)** is the strongest predictor of success, followed by **Study Hours (0.37 correlation)**. 
-> **Note:** The `attendance_rate` feature was dropped during the engineering phase as it was constant (90%) for all records, providing zero variance for the model to learn from.
+### 📊 Performance Metrics
+- **R-Squared ($R^2$): 0.8374** (Balanced fit for real-world generalization).
+- **Primary Anchor**: Previous Mean Grade (14.9% importance).
+- **Secondary Multiplier**: Sleep Hours (65.5% importance - High Sensitivity).
 
 
 
 ## 🛠️ Tech Stack
-- **Backend**: FastAPI & Uvicorn.
-- **Database**: PostgreSQL (Relational Storage).
-- **Data Science**: Scikit-learn, Pandas, NumPy, Joblib.
-- **Validation**: Pydantic V2 & SQLAlchemy.
+- **Frontend**: React 18, Tailwind CSS, Lucide Icons, Recharts.
+- **Backend**: FastAPI, Uvicorn, Python 3.12.
+- **ML Logic**: Scikit-learn, Pandas, NumPy, Joblib.
 
-## 📂 Project Structure
-```text
-├── app/                # Production API Logic (FastAPI, Models, DB)
-├── ml/                 # Training scripts, Heatmap, and .pkl Model
-├── Data/               # Raw and Cleaned CSV storage
-├── requirements.txt    # Project dependencies
+## ⚙️ Setup & Installation
+1. **Activate venv**: `source venv/bin/activate`
+2. **Install Dependencies**: `pip install -r requirements.txt`
+3. **Run Services**:
+   - Backend: `uvicorn app.main:app --reload`
+   - Frontend: `npm run dev`
 
-
-📡 API Usage
-To get a prediction, send a POST request to /predict:
-
-Request Body (JSON):
-{
-  "study_hours": 7.5,
-  "prev_mean_grade": 82.0,
-  "sleep_hours": 6.5,
-  "revision_intensity": 4
-}
-
-⚙️ Setup & Installation
-Activate venv: source venv/bin/activate
-
-Install: pip install -r requirements.txt
-
-Run Server: python3 -m uvicorn app.main:app --reload
+---
+*Developed by Otieno Hilary Omondi as a Final Year Project (2026).*
