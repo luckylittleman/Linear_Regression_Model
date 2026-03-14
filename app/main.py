@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 import pandas as pd
 import joblib
 import io
+import os
 import numpy as np
 from . import models, schemas
 from .database import SessionLocal, engine
@@ -11,9 +12,9 @@ from .database import SessionLocal, engine
 # Initialize Database
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="Student Analytics API", version="1.0.0")
 
-# 1. CORS Setup
+# CORS Setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:5174"],
@@ -22,8 +23,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load your Model
-model = joblib.load("student_model.pkl")
+# Load model using absolute path relative to this file — works regardless of cwd
+_MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "student_model.pkl")
+model = joblib.load(_MODEL_PATH)
+
 
 # Database Dependency
 def get_db():
@@ -33,22 +36,28 @@ def get_db():
     finally:
         db.close()
 
-# --- MISSING COMPONENT 1: INDIVIDUAL PREDICTION ---
+
+# --- INDIVIDUAL PREDICTION ---
 @app.post("/predict/individual")
 def predict_individual(data: schemas.StudentCreate, db: Session = Depends(get_db)):
-    # Prepare features for the model
     features = np.array([[
-        data.study_hours, 
-        data.prev_mean_grade, 
-        data.sleep_hours, 
+        data.study_hours,
+        data.prev_mean_grade,
+        data.sleep_hours,
         data.revision_intensity
     ]])
-    
-    # Run Inference
+
     prediction = model.predict(features)[0]
     final_score = round(max(0, min(100, float(prediction))), 2)
 
-    # Save to Individual Records table (StudentRecord)
+    # Compute feature contributions: coef_i × value_i
+    feature_names = ['study_hours', 'prev_mean_grade', 'sleep_hours', 'revision_intensity']
+    feature_values = [data.study_hours, data.prev_mean_grade, data.sleep_hours, data.revision_intensity]
+    contributions = {
+        name: round(float(coef) * float(val), 4)
+        for name, coef, val in zip(feature_names, model.coef_, feature_values)
+    }
+
     new_record = models.StudentRecord(
         student_name=data.student_name,
         reg_no=data.reg_no,
@@ -62,62 +71,88 @@ def predict_individual(data: schemas.StudentCreate, db: Session = Depends(get_db
     db.commit()
     db.refresh(new_record)
 
-    return {"predicted_score": final_score, "id": new_record.id}
+    return {
+        "predicted_score": final_score,
+        "id": new_record.id,
+        "intercept": round(float(model.intercept_), 4),
+        "contributions": contributions,
+    }
 
-# --- EXISTING: BATCH UPLOAD & PREDICTION ---
+
+# --- BATCH UPLOAD & PREDICTION ---
 @app.post("/predict/batch")
 async def predict_batch(file: UploadFile = File(...), db: Session = Depends(get_db)):
     contents = await file.read()
     df = pd.read_csv(io.BytesIO(contents))
-    
-    # Column mapping to ensure it works even if CSV headers vary slightly
+
+    required_cols = {'study_hours', 'prev_mean_grade', 'sleep_hours', 'revision_intensity'}
+    if not required_cols.issubset(df.columns):
+        raise HTTPException(status_code=422, detail=f"CSV must contain columns: {required_cols}")
+
     X_new = df[['study_hours', 'prev_mean_grade', 'sleep_hours', 'revision_intensity']]
     preds = model.predict(X_new)
     df['predicted_score'] = [round(max(0, min(100, float(p))), 2) for p in preds]
 
-    # Clear old batch and save new session
+    # Replace current batch
     db.query(models.BatchRecord).delete()
     for _, row in df.iterrows():
         new_entry = models.BatchRecord(
-            student_name=row['name'],
-            reg_no=row['reg_no'],
+            student_name=row.get('name', row.get('student_name', 'Unknown')),
+            reg_no=row.get('reg_no', '—'),
             predicted_score=row['predicted_score']
         )
         db.add(new_entry)
     db.commit()
 
-    return {"count": len(df), "results": df.to_dict(orient="records")}
+    scores = df['predicted_score'].tolist()
+    mean_score = round(sum(scores) / len(scores), 2) if scores else 0
+    at_risk_count = len([s for s in scores if s < 50])
 
-# --- EXISTING: DASHBOARD ANALYTICS ---
+    return {
+        "count": len(df),
+        "mean_score": mean_score,
+        "at_risk_count": at_risk_count,
+        "results": df.to_dict(orient="records")
+    }
+
+
+# --- DASHBOARD ANALYTICS ---
 @app.get("/analytics/current-batch")
 def get_batch_analytics(db: Session = Depends(get_db)):
     records = db.query(models.BatchRecord).all()
+
+    if not records:
+        return {
+            "total": 0,
+            "mean": 0,
+            "atRisk": 0,
+            "chartData": [],
+            "detailed_results": []
+        }
+
     scores = [r.predicted_score for r in records]
-    
-    student_list = []
-    for r in records:
-        student_list.append({
-            "student_name": r.student_name,
-            "reg_no": r.reg_no,
-            "predicted_score": r.predicted_score
-        })
+    student_list = [
+        {"student_name": r.student_name, "reg_no": r.reg_no, "predicted_score": r.predicted_score}
+        for r in records
+    ]
 
     chart_data = [
-        {"range": "0-40", "count": len([s for s in scores if s <= 40]), "color": "#f87171"},
-        {"range": "41-60", "count": len([s for s in scores if 40 < s <= 60]), "color": "#fbbf24"},
-        {"range": "61-80", "count": len([s for s in scores if 60 < s <= 80]), "color": "#34d399"},
-        {"range": "81-100", "count": len([s for s in scores if s > 80]), "color": "#2dd4bf"},
+        {"range": "0–40",  "count": len([s for s in scores if s <= 40]),            "color": "#f87171"},
+        {"range": "41–60", "count": len([s for s in scores if 40 < s <= 60]),       "color": "#fbbf24"},
+        {"range": "61–80", "count": len([s for s in scores if 60 < s <= 80]),       "color": "#34d399"},
+        {"range": "81–100","count": len([s for s in scores if s > 80]),             "color": "#2dd4bf"},
     ]
 
     return {
         "total": len(records),
-        "mean": round(sum(scores) / len(records), 2) if records else 0,
+        "mean": round(sum(scores) / len(records), 2),
         "atRisk": len([s for s in scores if s < 50]),
         "chartData": chart_data,
         "detailed_results": student_list
     }
 
-# --- MISSING COMPONENT 2: RESET/CLEANUP ---
+
+# --- RESET BATCH DATA ---
 @app.delete("/analytics/reset")
 def reset_data(db: Session = Depends(get_db)):
     db.query(models.BatchRecord).delete()
