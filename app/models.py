@@ -26,3 +26,18 @@ class BatchRecord(Base):
     reg_no = Column(String, nullable=False)
     predicted_score = Column(Float)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class PredictionHistory(Base):
+    __tablename__ = "prediction_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_name = Column(String, nullable=False)
+    reg_no = Column(String, nullable=False)
+    study_hours = Column(Float)
+    prev_mean_grade = Column(Float)
+    sleep_hours = Column(Float)
+    revision_intensity = Column(Integer)
+    predicted_score = Column(Float)
+    prediction_type = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
