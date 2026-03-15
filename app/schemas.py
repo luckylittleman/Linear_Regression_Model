@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from datetime import datetime
 
 class StudentBase(BaseModel):
     # Identity Fields
@@ -23,3 +24,18 @@ class StudentCreate(StudentBase):
 # Response includes db-assigned ID
 class StudentResponse(StudentBase):
     id: int
+
+
+class PredictionHistoryResponse(BaseModel):
+    id: int
+    student_name: str
+    reg_no: str
+    study_hours: Optional[float] = None
+    prev_mean_grade: Optional[float] = None
+    sleep_hours: Optional[float] = None
+    revision_intensity: Optional[int] = None
+    predicted_score: float
+    prediction_type: str
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
