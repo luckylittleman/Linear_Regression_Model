@@ -68,6 +68,19 @@ def predict_individual(data: schemas.StudentCreate, db: Session = Depends(get_db
         predicted_score=final_score
     )
     db.add(new_record)
+    
+    history_record = models.PredictionHistory(
+        student_name=data.student_name,
+        reg_no=data.reg_no,
+        study_hours=data.study_hours,
+        prev_mean_grade=data.prev_mean_grade,
+        sleep_hours=data.sleep_hours,
+        revision_intensity=data.revision_intensity,
+        predicted_score=final_score,
+        prediction_type="Individual"
+    )
+    db.add(history_record)
+    
     db.commit()
     db.refresh(new_record)
 
@@ -96,12 +109,28 @@ async def predict_batch(file: UploadFile = File(...), db: Session = Depends(get_
     # Replace current batch
     db.query(models.BatchRecord).delete()
     for _, row in df.iterrows():
+        student_name = row.get('name', row.get('student_name', 'Unknown'))
+        reg_no = row.get('reg_no', '—')
+        predicted_score = row['predicted_score']
+        
         new_entry = models.BatchRecord(
-            student_name=row.get('name', row.get('student_name', 'Unknown')),
-            reg_no=row.get('reg_no', '—'),
-            predicted_score=row['predicted_score']
+            student_name=student_name,
+            reg_no=reg_no,
+            predicted_score=predicted_score
         )
         db.add(new_entry)
+        
+        history_entry = models.PredictionHistory(
+            student_name=student_name,
+            reg_no=reg_no,
+            study_hours=row.get('study_hours'),
+            prev_mean_grade=row.get('prev_mean_grade'),
+            sleep_hours=row.get('sleep_hours'),
+            revision_intensity=row.get('revision_intensity'),
+            predicted_score=predicted_score,
+            prediction_type="Batch"
+        )
+        db.add(history_entry)
     db.commit()
 
     scores = df['predicted_score'].tolist()
@@ -158,3 +187,9 @@ def reset_data(db: Session = Depends(get_db)):
     db.query(models.BatchRecord).delete()
     db.commit()
     return {"message": "Batch data cleared successfully"}
+
+# --- PREDICTION HISTORY ---
+@app.get("/history", response_model=list[schemas.PredictionHistoryResponse])
+def get_prediction_history(db: Session = Depends(get_db)):
+    records = db.query(models.PredictionHistory).order_by(models.PredictionHistory.created_at.desc()).all()
+    return records
