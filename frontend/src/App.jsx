@@ -5,6 +5,7 @@ import ModelInsights from './components/ModelInsights';
 import Dashboard from './components/Dashboard';
 import IndividualPredictor from './components/IndividualPredictor';
 import BatchUpload from './components/BatchUpload';
+import HistoryTab from './components/HistoryTab';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -14,6 +15,7 @@ function App() {
     individual: 'Individual Predictor',
     batch:      'Batch Prediction Upload',
     insights:   'Model Insights',
+    history:    'Prediction History',
     settings:   'System Settings',
   };
 
@@ -56,6 +58,7 @@ function App() {
           <NavItem id="individual" icon={UserCheck}        label="Individual Predictor" />
           <NavItem id="batch"      icon={FileUp}           label="Batch Upload" />
           <NavItem id="insights"   icon={BarChart3}        label="Model Insights" />
+          <NavItem id="history"    icon={Settings}         label="Prediction History" />
         </nav>
 
         <div style={{ borderTop: '1px solid #2b2d42', paddingTop: '20px' }}>
@@ -82,6 +85,7 @@ function App() {
           {activeTab === 'individual' && <IndividualPredictor />}
           {activeTab === 'batch'      && <BatchUpload />}
           {activeTab === 'insights'   && <ModelInsights />}
+          {activeTab === 'history'    && <HistoryTab />}
 
           {activeTab === 'settings' && (
             <div className="card" style={{ padding: '40px', textAlign: 'center', color: '#a1a1aa' }}>
