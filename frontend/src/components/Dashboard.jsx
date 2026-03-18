@@ -77,7 +77,7 @@ const Dashboard = () => {
       <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #1e1e3f' }}>
           <div>
-            <h2 style={{ color: '#2dd4bf', margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Institutional Analytics</h2>
+            <h2 style={{ color: '#2dd4bf', margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Batch Analytics</h2>
             <p style={{ color: '#a1a1aa', fontSize: '0.9rem', margin: '8px 0 0 0' }}>Overview of current batch performance</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ const Dashboard = () => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #1e1e3f' }}>
         <div>
-          <h2 style={{ color: '#2dd4bf', margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Institutional Analytics</h2>
+          <h2 style={{ color: '#2dd4bf', margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Batch Analytics</h2>
           <p style={{ color: '#a1a1aa', fontSize: '0.9rem', margin: '8px 0 0 0' }}>Overview of current batch performance</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>

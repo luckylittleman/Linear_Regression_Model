@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pandas as pd
 import joblib  # To save the model
+import json
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
@@ -50,6 +51,17 @@ def train_student_model():
     # 7. Save the model to a file
     joblib.dump(model, "student_model.pkl")
     print("Model saved as 'student_model.pkl'")
+
+    # 8. Save metadata
+    metadata = {
+        "r2_score": (r2 * 100).round(2),
+        "records_used": len(df)
+    }
+    
+    metadata_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'model_metadata.json')
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=4)
+    print(f"Metadata saved to {metadata_path}")
 
 if __name__ == "__main__":
     train_student_model()

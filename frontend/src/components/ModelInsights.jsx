@@ -1,20 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Info, TrendingUp, Hash } from 'lucide-react';
 
 const ModelInsights = () => {
-  // These values should match the output of your train_linear.py script
-  const weights = [
-    { feature: 'Study Hours', weight: 0.8542, correlation: 'Strong Positive' },
-    { feature: 'Prev. Mean Grade', weight: 0.9211, correlation: 'Very Strong' },
-    { feature: 'Sleep Hours', weight: 1.1504, correlation: 'Positive' },
-    { feature: 'Revision Intensity', weight: 0.4520, correlation: 'Moderate' },
-  ];
+  const [modelData, setModelData] = useState({
+    weights: [],
+    intercept: 0,
+    r2_score: 98.87,
+    records_used: 10240,
+    status: 'loading'
+  });
 
-  const intercept = 12.45;
+  useEffect(() => {
+    fetchModelConfig();
+  }, []);
+
+  const fetchModelConfig = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/model/config');
+      const data = await response.json();
+      setModelData(prev => ({
+        ...prev,
+        weights: data.weights,
+        intercept: data.intercept,
+        r2_score: data.r2_score || prev.r2_score,
+        records_used: data.records_used || prev.records_used,
+        status: 'active'
+      }));
+    } catch (err) {
+      console.error('Failed to fetch model config:', err);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ margin: 0 }}></h2>
+          <p style={{ color: '#a1a1aa', margin: '5px 0 0' }}><b>View regression parameters</b></p>
+        </div>
+      </div>
+
       {/* 1. The Mathematical Equation */}
       <div className="card" style={{ background: '#11122d', border: '1px solid #2dd4bf' }}>
         <h3 style={{ color: '#2dd4bf', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -25,13 +51,13 @@ const ModelInsights = () => {
           marginTop: '15px', fontFamily: 'monospace', fontSize: '1.2rem', textAlign: 'center' 
         }}>
           <span style={{ color: '#a1a1aa' }}>Grade = </span>
-          {weights.map((w, i) => (
+          {modelData.weights.map((w, i) => (
             <span key={i}>
               <span style={{ color: '#2dd4bf' }}>({w.weight})</span>
               <span style={{ color: '#ffffff' }}> × {w.feature.split(' ')[0]} + </span>
             </span>
           ))}
-          <span style={{ color: '#fbbf24' }}>{intercept}</span>
+          <span style={{ color: '#fbbf24' }}>{modelData.intercept}</span>
         </div>
         <p style={{ fontSize: '0.8rem', color: '#a1a1aa', marginTop: '10px' }}>
           * This equation is derived via Ordinary Least Squares (OLS) optimization.
@@ -50,12 +76,15 @@ const ModelInsights = () => {
               </tr>
             </thead>
             <tbody>
-              {weights.map((w, i) => (
+              {modelData.weights.map((w, i) => (
                 <tr key={i} style={{ borderBottom: '1px solid #151630' }}>
                   <td style={{ padding: '12px' }}>{w.feature}</td>
-                  <td style={{ padding: '12px', color: '#2dd4bf', fontWeight: 'bold' }}>+{w.weight}</td>
+                  <td style={{ padding: '12px', color: '#2dd4bf', fontWeight: 'bold' }}>{w.weight >= 0 ? '+' : ''}{w.weight}</td>
                 </tr>
               ))}
+              {modelData.weights.length === 0 && (
+                 <tr><td colSpan="2" style={{ padding: '12px', textAlign: 'center', color: '#a1a1aa' }}>Loading coefficients...</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -68,19 +97,20 @@ const ModelInsights = () => {
               <TrendingUp size={16} color="#34d399" />
               <div>
                 <p style={{ margin: 0, fontSize: '0.85rem' }}>Primary Driver</p>
-                <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.75rem' }}>Previous Mean Grade has the highest correlation with final outcomes.</p>
+                <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.75rem' }}>Previous Mean Grade generally has the highest correlation with final outcomes.</p>
               </div>
             </div>
             <div style={statBox}>
               <Info size={16} color="#2dd4bf" />
               <div>
                 <p style={{ margin: 0, fontSize: '0.85rem' }}>Learning Status</p>
-                <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.75rem' }}>Model trained on 10,240 records with 98.87% R² accuracy.</p>
+                <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.75rem' }}>Model trained on {modelData.records_used.toLocaleString()} records with {modelData.r2_score}% R² accuracy.</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      
     </div>
   );
 };

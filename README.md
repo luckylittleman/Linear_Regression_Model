@@ -52,4 +52,4 @@ The system utilizes a **Ridge Regression** engine to ensure that predictions rem
    - Frontend: `npm run dev`
 
 ---
-*Developed by Otieno Hilary Omondi as a Final Year Project (2026).*
+*Developed by Otieno Hilary as a Final Year Project (2026).*

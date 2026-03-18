@@ -6,8 +6,12 @@ import joblib
 import io
 import os
 import numpy as np
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
 from . import models, schemas
 from .database import SessionLocal, engine
+import json
 
 # Initialize Database
 models.Base.metadata.create_all(bind=engine)
@@ -193,3 +197,34 @@ def reset_data(db: Session = Depends(get_db)):
 def get_prediction_history(db: Session = Depends(get_db)):
     records = db.query(models.PredictionHistory).order_by(models.PredictionHistory.created_at.desc()).all()
     return records
+
+# --- MODEL CONFIG & RETRAINING ---
+@app.get("/model/config")
+def get_model_config():
+    feature_names = ['Study Hours', 'Prev. Mean Grade', 'Sleep Hours', 'Revision Intensity']
+    weights = [
+        {"feature": name, "weight": round(float(coef), 4)}
+        for name, coef in zip(feature_names, model.coef_)
+    ]
+    
+    # Try fetching model evaluation metadata
+    r2_score = 0
+    records_used = 0
+    
+    metadata_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "model_metadata.json")
+    if os.path.exists(metadata_path):
+        try:
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+                r2_score = metadata.get("r2_score", 0)
+                records_used = metadata.get("records_used", 0)
+        except Exception as e:
+            print(f"Error reading model metadata: {e}")
+
+    return {
+        "weights": weights,
+        "intercept": round(float(model.intercept_), 4),
+        "status": "active",
+        "r2_score": r2_score,
+        "records_used": records_used
+    }
