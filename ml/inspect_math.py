@@ -1,18 +1,38 @@
-import joblib
+"""
+ml/inspect_math.py
+------------------
+Prints the learned regression equation for inspection.
+Load the production model from the project root.
+"""
+
 import os
+import joblib
 
-# Load the brain 
-model_path = os.path.join(os.path.dirname(__file__), "student_model.pkl")
-model = joblib.load(model_path)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH   = os.path.join(PROJECT_ROOT, "student_model.pkl")
 
-# The Features  used
-features = ['Study Hours', 'Prev Mean Grade', 'Sleep Hours', 'Revision Intensity']
+model = joblib.load(MODEL_PATH)
 
-print("--- THE MATHEMATICAL WEIGHTS ---")
-print(f"Intercept (b): {model.intercept_:.4f}")
-print("-" * 30)
+FEATURES = [
+    "Attendance Rate (%)",
+    "CAT Score",
+    "Prev. Mean Grade",
+    "HELB Status",
+]
 
-# Match each 'm' to its feature name
-for feature, coef in zip(features, model.coef_):
-    print(f"Weight (m) for {feature}: {coef:.4f}")
-print("-" * 30)
+print("\n" + "─" * 45)
+print(" REGRESSION EQUATION COEFFICIENTS")
+print("─" * 45)
+print(f"  Intercept (β₀) : {model.intercept_:.4f}")
+for feature, coef in zip(FEATURES, model.coef_):
+    sign = "+" if coef >= 0 else "−"
+    print(f"  {feature:<22} : {sign}{abs(coef):.4f}")
+print("─" * 45)
+print()
+
+eq_parts = " + ".join(
+    f"({c:.4f} × {f})"
+    for c, f in zip(model.coef_, FEATURES)
+)
+print(f"  ŷ = {model.intercept_:.4f} + {eq_parts}")
+print()

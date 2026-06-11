@@ -1,4 +1,14 @@
 {
-    "r2_score": 83.74,
-    "records_used": 10000
+    "r2_score": 82.46,
+    "rmse": 4.6533,
+    "mae": 3.7239,
+    "cv_mean_r2": 83.05,
+    "cv_mean_rmse": 4.5608,
+    "records_used": 10000,
+    "features": [
+        "attendance_rate",
+        "cat_score",
+        "prev_mean_grade",
+        "helb_status"
+    ]
 }
