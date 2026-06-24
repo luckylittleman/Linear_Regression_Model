@@ -1,123 +1,213 @@
 # Student Academic Performance Forecasting
-**Maseno University, Kenya — Final Year CS Project**
 
-A full-stack system for predicting student final percentage scores using **Multiple Linear Regression**.
+### Predictive Analytics Engine — Maseno University Final Year CS Project
 
-## Four Model Features
-| Feature | Range | Description |
-|---|---|---|
-| `attendance_rate` | 0–100 % | Proxy for student commitment |
-| `cat_score` | 0–100 | Continuous Assessment Test (strongest predictor) |
-| `prev_mean_grade` | 0–100 | Historical academic trajectory (cumulative GPA) |
-| `helb_status` | 0 or 1 | HELB funding status — socio-economic proxy |
+A full-stack system for predicting student final percentage scores using **Multiple Linear Regression (OLS)**. The engine accepts four proposal-defined features — attendance rate, CAT score, previous mean grade, and HELB funding status — and outputs a predicted final score alongside an XAI-powered risk classification (High Risk / Moderate Risk / Safe) with feature-level contribution breakdowns.
 
-## Risk Bands
-| Score Range | Label | Color |
-|---|---|---|
-| < 40 % | **High Risk** | 🔴 Red |
-| 40 – 59 % | **Moderate Risk** | 🟡 Amber |
-| ≥ 60 % | **Safe** | 🟢 Green |
+The project ships a complete pipeline: synthetic data generation, model training with 5-fold cross-validation, a FastAPI REST backend with individual and batch prediction endpoints, PostgreSQL persistence, and a React + Vite dashboard featuring real-time analytics, CSV batch uploads, prediction history, and model insights — all backed by a from-scratch gradient descent implementation for academic comparison.
+
+![Correlation Heatmap](ml/correlation_heatmap.png)
 
 ---
 
-## Quick Start
+## 🚀 Features
 
-### 1 — Generate Synthetic Training Data
-```bash
-python refined_data.py
-# Creates refined_training_data.csv with 10,000 records
+- **Multiple Linear Regression (OLS)** — Production model trained on 10,000 synthetic records with R² ≈ 83% and RMSE ≈ 4.56 marks, validated with 5-fold cross-validation.
+- **XAI Risk Classification** — Traffic-light risk bands (🔴 High Risk < 40%, 🟡 Moderate 40–59%, 🟢 Safe ≥ 60%) with per-feature contribution analysis identifying primary risk factors.
+- **Gradient Descent from Scratch** — Pure NumPy implementation of batch gradient descent with feature scaling, compared side-by-side against the Normal Equation and Scikit-learn.
+- **FastAPI REST Backend** — Six endpoints for individual prediction, batch CSV upload, dashboard analytics, prediction history, model config, and data reset.
+- **React + Vite Dashboard** — Five-tab interface: Individual Predictor, Dashboard Analytics, Batch Upload, Prediction History, and Model Insights.
+- **PostgreSQL Persistence** — Full prediction audit trail with individual records, batch snapshots, and append-only history logging.
+- **Academic Model Comparison** — Read-only comparison script benchmarking OLS against Ridge, Random Forest, and Gradient Boosting regressors.
+
+---
+
+## 🛠️ Project Structure
+
+```
+linear_regression_model/
+├── ml/
+│   ├── train_model.py           # Authoritative OLS training script (saves model + metadata)
+│   ├── correlation.py           # Generates feature correlation heatmap
+│   ├── inspect_math.py          # Prints the learned regression equation
+│   └── track_learning.py        # SGD live demo (academic illustration)
+├── app/                         # FastAPI backend
+│   ├── __init__.py
+│   ├── main.py                  # API endpoints (predict, analytics, history, config)
+│   ├── models.py                # SQLAlchemy ORM models (StudentRecord, BatchRecord, History)
+│   ├── schemas.py               # Pydantic request/response schemas
+│   └── database.py              # PostgreSQL connection and session factory
+├── frontend/                    # React + Vite frontend
+│   └── src/
+│       ├── App.jsx              # Main app with tabbed navigation
+│       └── components/
+│           ├── IndividualPredictor.jsx   # Single student prediction form + XAI
+│           ├── Dashboard.jsx            # Batch analytics with charts
+│           ├── BatchUpload.jsx          # CSV drag-and-drop upload
+│           ├── HistoryTab.jsx           # Full prediction history log
+│           └── ModelInsights.jsx        # Model weights, R², RMSE, CV metrics
+├── Data/
+│   ├── Student_Performance.csv          # Raw external dataset
+│   └── Student_Performance_Cleaned.csv  # Cleaned version for ingestion
+├── refined_data.py              # Generates 10,000 synthetic training records
+├── gradientdescent.py           # Three-algorithm comparison (GD vs Normal Eq vs Sklearn)
+├── compare.py                   # Academic model comparison (OLS vs Ridge vs RF vs GB)
+├── ingest_data.py               # Ingests raw CSV into PostgreSQL for analytics
+├── initdb.py                    # Creates/resets database tables
+├── refined_training_data.csv    # Generated synthetic training dataset
+├── student_model.pkl            # Trained production model (OLS)
+├── model_metadata.json          # R², RMSE, CV metrics, feature list
+├── requirements.txt             # Python dependencies
+└── .gitignore
 ```
 
-### 2 — Train the Model
+---
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+
+- Python 3.8+
+- PostgreSQL 12+
+- Node.js 18+
+
+### 1. Clone the Repository
+
 ```bash
-python ml/train_model.py
-# Trains LinearRegression (OLS), saves student_model.pkl + model_metadata.json
-# Reports: R², RMSE, 5-Fold CV Mean R², 5-Fold CV Mean RMSE
+git clone https://github.com/luckylittleman/linear_regression_model.git
+cd linear_regression_model
 ```
 
-### 3 — (Optional) Compare Models
+### 2. Set Up a Virtual Environment (Recommended)
+
+**Linux / macOS:**
+
 ```bash
-python compare.py
-# Compares LinearRegression vs Ridge vs Random Forest vs Gradient Boosting
-# Does NOT overwrite the production model
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-### 4 — Initialise the Database
+**Windows:**
+
 ```bash
-python initdb.py
-# Creates PostgreSQL tables (drops old tables if they exist)
+python -m venv venv
+venv\Scripts\activate
 ```
 
-### 5 — Run the Backend API
+### 3. Install Dependencies
+
 ```bash
-uvicorn app.main:app --reload --port 8000
-# API docs: http://localhost:8000/docs
+pip install -r requirements.txt
 ```
 
-### 6 — Run the Frontend
 ```bash
 cd frontend
-npm install   # first time only
-npm run dev
-# Open: http://localhost:5173
+npm install
+cd ..
 ```
 
 ---
 
-## Architecture
-```
-linear_regression_model2/
-├── refined_data.py          ← Generate 10,000 synthetic training records
-├── refined_training_data.csv
-├── student_model.pkl        ← Trained production model (OLS)
-├── model_metadata.json      ← r2_score, rmse, cv_mean_r2, cv_mean_rmse
-├── compare.py               ← Academic comparison (Ridge, RF, GB) — read-only
-├── ingest_data.py           ← Load external CSV into PostgreSQL
-├── initdb.py                ← Create/reset DB tables
-├── requirements.txt
-│
-├── ml/
-│   ├── train_model.py       ← Authoritative training script
-│   ├── correlation.py       ← Correlation heatmap
-│   ├── inspect_math.py      ← Print learned regression equation
-│   └── track_learning.py    ← SGD live demo (academic illustration)
-│
-├── app/                     ← FastAPI backend
-│   ├── main.py
-│   ├── models.py
-│   ├── schemas.py
-│   └── database.py
-│
-└── frontend/                ← React + Vite
-    └── src/
-        └── components/
-            ├── IndividualPredictor.jsx
-            ├── Dashboard.jsx
-            ├── BatchUpload.jsx
-            ├── HistoryTab.jsx
-            └── ModelInsights.jsx
+## 🚀 Quick Start
+
+### Train the Model
+
+Run the training script to train the OLS regression model and generate evaluation metrics:
+
+```bash
+python ml/train_model.py
 ```
 
-## CSV Upload Format (Batch Prediction)
-Your CSV file must contain these exact column names:
-```
-name,reg_no,attendance_rate,cat_score,prev_mean_grade,helb_status
-Otieno James,K12/0023/22,82.5,67,74,1
-Wanjiru Faith,K12/0099/22,55,45,50,0
+This will:
+1. Load 10,000 synthetic records from `refined_training_data.csv`
+2. Train a Multiple Linear Regression model on an 80/20 train/test split
+3. Report R², RMSE, MAE, and 5-fold cross-validation scores
+4. Save the model to `student_model.pkl` and metrics to `model_metadata.json`
+
+### Run the Full-Stack Application
+
+```bash
+# Terminal 1 — Backend API
+uvicorn app.main:app --reload --port 8000
+
+# Terminal 2 — Frontend Dashboard
+cd frontend && npm run dev
 ```
 
-## API Endpoints
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/predict/individual` | Single student prediction + XAI |
-| POST | `/predict/batch` | Bulk CSV upload |
-| GET | `/analytics/current-batch` | Dashboard analytics |
-| GET | `/history` | Full prediction history log |
-| GET | `/model/config` | Model weights, R², RMSE, CV metrics |
-| DELETE | `/analytics/reset` | Clear current batch data |
+Open `http://localhost:5173` for the dashboard and `http://localhost:8000/docs` for interactive API docs.
 
-## Dependencies
-See `requirements.txt`. Key packages:
-- `fastapi`, `uvicorn`, `sqlalchemy`, `psycopg2-binary`
-- `scikit-learn`, `pandas`, `numpy`, `joblib`
-- `react`, `recharts`, `axios` (frontend)
+---
+
+## 📖 API Usage
+
+```python
+import numpy as np
+import joblib
+
+# Load the trained production model
+model = joblib.load("student_model.pkl")
+
+# Define feature names (must match training order)
+FEATURE_NAMES = ["attendance_rate", "cat_score", "prev_mean_grade", "helb_status"]
+
+# Prepare input — single student
+student = np.array([[82.5, 67, 74, 1]])  # attendance=82.5%, CAT=67, prev_grade=74, HELB=funded
+
+# Predict final score
+raw_score = float(model.predict(student)[0])
+final_score = round(max(0.0, min(100.0, raw_score)), 2)
+
+# XAI — Feature contributions (coef_i × value_i)
+contributions = {
+    name: round(float(coef) * float(val), 4)
+    for name, coef, val in zip(FEATURE_NAMES, model.coef_, student[0])
+}
+
+# Risk classification
+def get_risk_category(score):
+    if score < 40:
+        return "High Risk"
+    elif score < 60:
+        return "Moderate Risk"
+    return "Safe"
+
+print(f"Predicted Score : {final_score}%")
+print(f"Risk Category   : {get_risk_category(final_score)}")
+print(f"Contributions   : {contributions}")
+print(f"Intercept       : {model.intercept_:.4f}")
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Whether you're improving the model pipeline, adding new frontend features, or enhancing the XAI analysis.
+
+### Code Standards
+
+- **Proposal Alignment** — All model features must match the four proposal-defined columns (`attendance_rate`, `cat_score`, `prev_mean_grade`, `helb_status`). Do not add or remove features without updating the full pipeline.
+- **No Production Overwrites** — Academic comparison scripts (`compare.py`, `gradientdescent.py`) must never overwrite `student_model.pkl`. Only `ml/train_model.py` is authoritative.
+- **Consistent Risk Bands** — Always use the proposal thresholds: < 40 = High Risk, 40–59 = Moderate Risk, ≥ 60 = Safe. Do not modify these boundaries without updating both backend and frontend.
+
+### Contribution Workflow
+
+1. **Fork** the repository on GitHub
+2. **Create a feature branch** off `main`:
+   ```bash
+   git checkout -b feature/batch-export-csv
+   ```
+3. **Commit** with descriptive messages:
+   ```bash
+   git commit -m "feat: add CSV export button to Dashboard analytics"
+   ```
+4. **Push** your branch:
+   ```bash
+   git push origin feature/batch-export-csv
+   ```
+5. **Open a Pull Request** describing your changes, any model impact, and verification steps.
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
