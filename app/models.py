@@ -3,15 +3,6 @@ from sqlalchemy.sql import func
 from .database import Base
 
 
-def _risk_category(score: float) -> str:
-    """Classify a predicted score into traffic-light risk bands."""
-    if score < 40:
-        return "High Risk"
-    elif score < 60:
-        return "Moderate Risk"
-    return "Safe"
-
-
 class StudentRecord(Base):
     """Individual prediction records."""
     __tablename__ = "individual_predictions"
@@ -41,6 +32,13 @@ class BatchRecord(Base):
     id              = Column(Integer, primary_key=True, index=True)
     student_name    = Column(String, nullable=False)
     reg_no          = Column(String, nullable=False)
+
+    # ── 4 proposal features (for auditability) ───────────────────────────────
+    attendance_rate  = Column(Float)
+    cat_score        = Column(Float)
+    prev_mean_grade  = Column(Float)
+    helb_status      = Column(Integer)
+
     predicted_score = Column(Float)
     risk_category   = Column(String)  # "High Risk" | "Moderate Risk" | "Safe"
     created_at      = Column(DateTime(timezone=True), server_default=func.now())

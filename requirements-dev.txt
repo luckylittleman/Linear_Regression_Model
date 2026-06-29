@@ -1,0 +1,20 @@
+# ── Development & Analysis Dependencies ──────────────────────────────────────
+# Install these ON TOP of the runtime deps:
+#   pip install -r requirements.txt -r requirements-dev.txt
+
+# Jupyter / Notebooks
+ipykernel
+jupyterlab
+notebook_shim
+
+# Visualization & Analysis
+matplotlib
+seaborn
+
+# HTTP client (for testing)
+httpx
+requests
+
+# Linting / Formatting (optional)
+# ruff
+# black

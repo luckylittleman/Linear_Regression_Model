@@ -37,6 +37,88 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Shared spin animation ───────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Button styles ───────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--teal-primary);
+  color: var(--teal-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: rgba(45, 212, 191, 0.1);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-secondary:hover {
+  border-color: var(--text-muted);
+  background: rgba(161, 161, 170, 0.08);
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── History table ───────────────────────────────────────────────────── */
+.custom-table {
+  border-collapse: collapse;
+}
+.custom-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+.custom-table th {
+  padding: 13px 15px;
+  text-align: left;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+.custom-table td {
+  padding: 11px 15px;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  border-bottom: 1px solid #151630;
+}
+.custom-table tr:hover td {
+  background: rgba(45, 212, 191, 0.03);
+}
+
 @media print {
   aside, .no-print { display: none !important; }
   main { padding: 0 !important; }

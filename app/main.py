@@ -15,16 +15,14 @@ Risk bands (proposal thresholds):
   ≥ 60  → Safe          (Green)
 """
 
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import pandas as pd
 import joblib
 import io
 import os
-import math
 import numpy as np
-from sklearn.metrics import mean_squared_error, r2_score as sk_r2
 from . import models, schemas
 from .database import SessionLocal, engine
 import json
@@ -101,31 +99,7 @@ def get_primary_risk_factor(contributions: dict, predicted_score: float) -> str:
     return f"Warning: Low {label} is the primary risk factor"
 
 
-def compute_classification_accuracy(records: list) -> float:
-    """
-    % of records where the predicted risk band matches a 're-derived' band
-    computed from raw features (used as a proxy for ground truth in a
-    regression-only system without actual exam results).
-    Since we don't have ground truth labels, we report band-to-band accuracy
-    vs. what a logistic classifier over the same features would predict.
-    In this deployment we compute it as:
-      correct = predictions whose band matches the naive band
-                computed from the unscaled feature average.
-    As a pragmatic proxy: use the model intercept + feature mean contribution
-    to define an expected band, then compare.
-    For a simpler, academically honest metric: report the % of students whose
-    predicted score is within ±10 marks of the mean of their risk band midpoint.
-    """
-    if not records:
-        return 0.0
-    band_midpoints = {"High Risk": 20, "Moderate Risk": 49, "Safe": 75}
-    correct = 0
-    for r in records:
-        band = get_risk_category(r["predicted_score"])
-        midpoint = band_midpoints[band]
-        if abs(r["predicted_score"] - midpoint) <= 20:
-            correct += 1
-    return round(correct / len(records) * 100, 2)
+
 
 
 # ── DB dependency ─────────────────────────────────────────────────────────────
@@ -223,17 +197,25 @@ async def predict_batch(file: UploadFile = File(...), db: Session = Depends(get_
     df["predicted_score"] = [round(max(0.0, min(100.0, float(p))), 2) for p in preds]
     df["risk_category"]   = df["predicted_score"].apply(get_risk_category)
 
-    # ── Replace current batch ─────────────────────────────────────────────────
+    # ── Replace current batch (bulk insert for performance) ────────────────────
     db.query(models.BatchRecord).delete()
+
+    batch_records   = []
+    history_records = []
+
     for _, row in df.iterrows():
         student_name    = row.get("name", row.get("student_name", "Unknown"))
         reg_no          = row.get("reg_no", "—")
         predicted_score = row["predicted_score"]
         risk_cat        = row["risk_category"]
 
-        db.add(models.BatchRecord(
+        batch_records.append(models.BatchRecord(
             student_name    = student_name,
             reg_no          = reg_no,
+            attendance_rate = row.get("attendance_rate"),
+            cat_score       = row.get("cat_score"),
+            prev_mean_grade = row.get("prev_mean_grade"),
+            helb_status     = int(row.get("helb_status", 0)),
             predicted_score = predicted_score,
             risk_category   = risk_cat,
         ))
@@ -251,7 +233,7 @@ async def predict_batch(file: UploadFile = File(...), db: Session = Depends(get_
         }
         primary_rf = get_primary_risk_factor(contribs, predicted_score)
 
-        db.add(models.PredictionHistory(
+        history_records.append(models.PredictionHistory(
             student_name        = student_name,
             reg_no              = reg_no,
             attendance_rate     = row.get("attendance_rate"),
@@ -264,6 +246,8 @@ async def predict_batch(file: UploadFile = File(...), db: Session = Depends(get_
             prediction_type     = "Batch",
         ))
 
+    db.bulk_save_objects(batch_records)
+    db.bulk_save_objects(history_records)
     db.commit()
 
     scores = df["predicted_score"].tolist()
@@ -309,16 +293,21 @@ def get_batch_analytics(db: Session = Depends(get_db)):
         for r in records
     ]
 
-    # Traffic-light 3-band chart data
-    chart_data = [
-        {"range": "0–39 (High Risk)",     "label": "High Risk",      "count": len([s for s in scores if s < 40]),              "color": "#f87171"},
-        {"range": "40–59 (Moderate Risk)", "label": "Moderate Risk",  "count": len([s for s in scores if 40 <= s < 60]),        "color": "#fbbf24"},
-        {"range": "60–100 (Safe)",          "label": "Safe",            "count": len([s for s in scores if s >= 60]),             "color": "#34d399"},
-    ]
+    # Single-pass counting for traffic-light bands
+    high_risk_count = moderate_risk_count = safe_count = 0
+    for s in scores:
+        if s < 40:
+            high_risk_count += 1
+        elif s < 60:
+            moderate_risk_count += 1
+        else:
+            safe_count += 1
 
-    high_risk_count     = len([s for s in scores if s < 40])
-    moderate_risk_count = len([s for s in scores if 40 <= s < 60])
-    safe_count          = len([s for s in scores if s >= 60])
+    chart_data = [
+        {"range": "0–39 (High Risk)",     "label": "High Risk",     "count": high_risk_count,     "color": "#f87171"},
+        {"range": "40–59 (Moderate Risk)", "label": "Moderate Risk", "count": moderate_risk_count, "color": "#fbbf24"},
+        {"range": "60–100 (Safe)",         "label": "Safe",          "count": safe_count,          "color": "#34d399"},
+    ]
 
     return {
         "total":        len(records),
@@ -344,13 +333,29 @@ def reset_data(db: Session = Depends(get_db)):
 # ═════════════════════════════════════════════════════════════════════════════
 # PREDICTION HISTORY
 # ═════════════════════════════════════════════════════════════════════════════
-@app.get("/history", response_model=list[schemas.PredictionHistoryResponse])
-def get_prediction_history(db: Session = Depends(get_db)):
-    return (
+@app.get("/history")
+def get_prediction_history(
+    skip: int  = Query(0,   ge=0,           description="Records to skip"),
+    limit: int = Query(100, ge=1, le=1000,  description="Max records to return"),
+    db: Session = Depends(get_db),
+):
+    total = db.query(models.PredictionHistory).count()
+    records = (
         db.query(models.PredictionHistory)
           .order_by(models.PredictionHistory.created_at.desc())
+          .offset(skip)
+          .limit(limit)
           .all()
     )
+    return {
+        "total":   total,
+        "skip":    skip,
+        "limit":   limit,
+        "records": [
+            schemas.PredictionHistoryResponse.model_validate(r).model_dump()
+            for r in records
+        ],
+    }
 
 
 # ═════════════════════════════════════════════════════════════════════════════

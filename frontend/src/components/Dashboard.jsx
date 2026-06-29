@@ -63,7 +63,6 @@ const Dashboard = () => {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px', gap: '14px', color: '#a1a1aa' }}>
       <div style={{ width: '24px', height: '24px', border: '3px solid #2b2d42', borderTopColor: '#2dd4bf', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       Loading analytics…
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 

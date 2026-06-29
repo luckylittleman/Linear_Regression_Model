@@ -80,7 +80,7 @@ const IndividualPredictor = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label style={labelStyle}><User size={14} /> Full Name</label>
-            <input value={formData.student_name} style={inputStyle} placeholder="Odipo Eliazar"
+            <input value={formData.student_name} style={inputStyle} placeholder="Ochieng Maina"
               onChange={(e) => setFormData({ ...formData, student_name: e.target.value })} />
           </div>
           <div>
