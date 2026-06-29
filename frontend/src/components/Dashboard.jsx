@@ -69,13 +69,13 @@ const Dashboard = () => {
 
   if (!analytics || analytics.total === 0) return (
     <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
-      <div style={headerRow}>
+      <div className="dashboard-header">
         <div>
           <h2 style={{ color: '#2dd4bf', margin: 0 }}>Batch Analytics</h2>
           <p style={{ color: '#a1a1aa', fontSize: '0.9rem', margin: '8px 0 0' }}>Overview of current batch performance</p>
         </div>
       </div>
-      <div className="card" style={{ padding: '60px', textAlign: 'center', color: '#a1a1aa' }}>
+      <div className="card" style={{ padding: '60px 24px', textAlign: 'center', color: '#a1a1aa' }}>
         <InboxIcon size={56} style={{ marginBottom: '18px', opacity: 0.3 }} />
         <h3 style={{ color: '#e2e8f0', margin: '0 0 10px' }}>No Batch Data Yet</h3>
         <p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -89,12 +89,12 @@ const Dashboard = () => {
     <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
 
       {/* Header */}
-      <div style={{ ...headerRow, marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #1e1e3f' }}>
+      <div className="dashboard-header">
         <div>
           <h2 style={{ color: '#2dd4bf', margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Batch Analytics</h2>
           <p style={{ color: '#a1a1aa', fontSize: '0.9rem', margin: '8px 0 0' }}>Overview of current batch performance</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="dashboard-header-actions">
           <button onClick={clearDashboard} disabled={clearing} style={clearBtnStyle}>
             <Trash2 size={16} /> {clearing ? 'Clearing…' : 'Clear Dashboard'}
           </button>
@@ -105,7 +105,7 @@ const Dashboard = () => {
       </div>
 
       {/* Metric Tiles — 4 tiles (total, mean, high-risk, safe) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '30px' }}>
+      <div className="stat-grid">
         <div className="card" style={statCardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <p style={labelStyle}>BATCH SIZE</p><Users size={16} color="#2dd4bf" />
@@ -163,19 +163,18 @@ const Dashboard = () => {
         );
         return (
           <div className="card" style={{ background: '#0c0d21' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+            <div className="dashboard-table-header">
               <h3 style={{ margin: 0, fontSize: '1rem', color: '#e2e8f0' }}>Student Results</h3>
-              <div style={{ position: 'relative', width: '260px' }}>
+              <div className="dashboard-search">
                 <Search size={15} style={{ position: 'absolute', left: '11px', top: '11px', color: '#a1a1aa' }} />
                 <input
                   type="text" placeholder="Search name or reg no…" value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  style={{ width: '100%', padding: '10px 10px 10px 36px', background: '#090a1e', border: '1px solid #2b2d42', color: 'white', borderRadius: '8px', outline: 'none', boxSizing: 'border-box', fontSize: '0.85rem' }}
                 />
               </div>
             </div>
-            <div style={{ maxHeight: '420px', overflowY: 'auto', borderRadius: '8px', border: '1px solid #2b2d42', background: '#090a1e' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ maxHeight: '420px', overflowY: 'auto', overflowX: 'auto', borderRadius: '8px', border: '1px solid #2b2d42', background: '#090a1e' }}>
+              <table style={{ width: '100%', minWidth: '550px', borderCollapse: 'collapse' }}>
                 <thead style={{ position: 'sticky', top: 0, background: '#151630', zIndex: 1 }}>
                   <tr>
                     <th style={thStyle}>Full Name</th>
@@ -216,7 +215,6 @@ const Dashboard = () => {
   );
 };
 
-const headerRow     = { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' };
 const statCardStyle = { background: '#0c0d21', border: '1px solid #1e1e3f', padding: '20px' };
 const labelStyle    = { color: '#a1a1aa', fontSize: '0.68rem', fontWeight: 'bold', margin: 0, textTransform: 'uppercase' };
 const thStyle       = { padding: '13px 15px', textAlign: 'left', fontSize: '0.72rem', color: '#a1a1aa', textTransform: 'uppercase' };

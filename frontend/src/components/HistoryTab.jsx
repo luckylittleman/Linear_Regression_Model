@@ -80,9 +80,9 @@ const HistoryTab = () => {
   return (
     <div className="card" style={{ padding: '30px', animation: 'fadeIn 0.4s ease-out' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div className="history-header">
         <div>
-          <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <History size={24} color="#2dd4bf" /> Prediction History Log
           </h2>
           <p style={{ color: '#a1a1aa', margin: '5px 0 0', fontSize: '0.95rem' }}>
@@ -90,7 +90,7 @@ const HistoryTab = () => {
             {total > 0 && <span style={{ color: '#2dd4bf', fontWeight: 600 }}> ({total.toLocaleString()} total)</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '15px' }}>
+        <div className="history-header-actions">
           <button onClick={() => fetchHistory(skip)} className="btn-secondary" disabled={loading}>
             <RefreshCw size={18} className={loading ? 'spin' : ''} /> Refresh
           </button>
@@ -117,7 +117,7 @@ const HistoryTab = () => {
         </div>
       ) : (
         <>
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <table className="custom-table" style={{ width: '100%', minWidth: '1000px' }}>
               <thead>
                 <tr>
@@ -192,10 +192,7 @@ const HistoryTab = () => {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #2b2d42'
-            }}>
+            <div className="history-pagination">
               <span style={{ color: '#a1a1aa', fontSize: '0.82rem' }}>
                 Showing {skip + 1}–{Math.min(skip + PAGE_SIZE, total)} of {total.toLocaleString()}
               </span>

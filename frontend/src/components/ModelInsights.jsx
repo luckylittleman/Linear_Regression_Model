@@ -36,7 +36,7 @@ const ModelInsights = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h2 style={{ margin: 0 }}></h2>
           <p style={{ color: '#a1a1aa', margin: '5px 0 0' }}><b>View regression parameters and model performance</b></p>
@@ -48,7 +48,7 @@ const ModelInsights = () => {
         <h3 style={{ color: '#2dd4bf', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Hash size={20} /> Regression Equation
         </h3>
-        <div style={{ padding: '20px', background: '#090a1e', borderRadius: '12px', marginTop: '15px', fontFamily: 'monospace', fontSize: '1rem', textAlign: 'center', lineHeight: '1.8', wordBreak: 'break-word' }}>
+        <div className="equation-box" style={{ padding: '20px', background: '#090a1e', borderRadius: '12px', marginTop: '15px', fontFamily: 'monospace', fontSize: '1rem', textAlign: 'center', lineHeight: '1.8', wordBreak: 'break-word', overflowX: 'auto' }}>
           <span style={{ color: '#a1a1aa' }}>Score = </span>
           {modelData.weights.map((w, i) => (
             <span key={i}>
@@ -63,38 +63,40 @@ const ModelInsights = () => {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+      <div className="insights-grid">
 
         {/* 2. Feature Weights Table */}
         <div className="card">
           <h3 style={{ marginBottom: '20px' }}>Feature Coefficients</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #2b2d42', color: '#a1a1aa', textAlign: 'left' }}>
-                <th style={{ padding: '12px' }}>Feature</th>
-                <th style={{ padding: '12px' }}>Weight (β)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {modelData.weights.map((w, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid #151630' }}>
-                  <td style={{ padding: '12px' }}>{w.feature}</td>
-                  <td style={{ padding: '12px', color: '#2dd4bf', fontWeight: 'bold' }}>
-                    {w.weight >= 0 ? '+' : ''}{w.weight}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '280px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #2b2d42', color: '#a1a1aa', textAlign: 'left' }}>
+                  <th style={{ padding: '12px' }}>Feature</th>
+                  <th style={{ padding: '12px' }}>Weight (β)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modelData.weights.map((w, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #151630' }}>
+                    <td style={{ padding: '12px' }}>{w.feature}</td>
+                    <td style={{ padding: '12px', color: '#2dd4bf', fontWeight: 'bold' }}>
+                      {w.weight >= 0 ? '+' : ''}{w.weight}
+                    </td>
+                  </tr>
+                ))}
+                {!modelData.weights.length && (
+                  <tr><td colSpan="2" style={{ padding: '12px', textAlign: 'center', color: '#a1a1aa' }}>Loading…</td></tr>
+                )}
+                <tr style={{ borderTop: '2px solid #2b2d42' }}>
+                  <td style={{ padding: '12px', color: '#a1a1aa' }}>Intercept (β₀)</td>
+                  <td style={{ padding: '12px', color: '#fbbf24', fontWeight: 'bold' }}>
+                    {modelData.intercept >= 0 ? '+' : ''}{modelData.intercept}
                   </td>
                 </tr>
-              ))}
-              {!modelData.weights.length && (
-                <tr><td colSpan="2" style={{ padding: '12px', textAlign: 'center', color: '#a1a1aa' }}>Loading…</td></tr>
-              )}
-              <tr style={{ borderTop: '2px solid #2b2d42' }}>
-                <td style={{ padding: '12px', color: '#a1a1aa' }}>Intercept (β₀)</td>
-                <td style={{ padding: '12px', color: '#fbbf24', fontWeight: 'bold' }}>
-                  {modelData.intercept >= 0 ? '+' : ''}{modelData.intercept}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* 3. Model Performance Stats */}

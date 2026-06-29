@@ -57,11 +57,11 @@ const IndividualPredictor = () => {
   const risk = result ? getRiskProfile(result.predicted_score) : null;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '30px' }}>
+    <div className="predictor-layout">
 
       {/* ── LEFT: INPUT FORM ─────────────────────────────────────────────── */}
       <div className="card" style={{ background: '#11122d' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px' }}>
           <h2 style={{ color: '#2dd4bf', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Activity size={24} /> Precision Predictor
           </h2>
@@ -77,7 +77,7 @@ const IndividualPredictor = () => {
         )}
 
         {/* Row 1 – Identity */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+        <div className="predictor-form-row">
           <div>
             <label style={labelStyle}><User size={14} /> Full Name</label>
             <input value={formData.student_name} style={inputStyle} placeholder="Ochieng Maina"
@@ -91,7 +91,7 @@ const IndividualPredictor = () => {
         </div>
 
         {/* Row 2 – Attendance & CAT Score */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+        <div className="predictor-form-row">
           <div>
             <label style={labelStyle}>📅 Attendance Rate (%)</label>
             <input value={formData.attendance_rate} type="number" step="0.1" min="0" max="100"
@@ -107,7 +107,7 @@ const IndividualPredictor = () => {
         </div>
 
         {/* Row 3 – Previous Mean Grade & HELB Status */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+        <div className="predictor-form-row" style={{ marginBottom: '30px' }}>
           <div>
             <label style={labelStyle}><BookOpen size={14} /> Prev. Mean Grade (%)</label>
             <input value={formData.prev_mean_grade} type="number" step="0.1" min="0" max="100"
@@ -141,7 +141,7 @@ const IndividualPredictor = () => {
         transition: 'border 0.3s, background 0.3s'
       }}>
         {!result ? (
-          <div style={{ color: '#a1a1aa', padding: '40px' }}>
+          <div style={{ color: '#a1a1aa', padding: '40px 20px' }}>
             <Brain size={60} style={{ marginBottom: '20px', opacity: 0.2 }} />
             <h3 style={{ color: '#e2e8f0' }}>Engine Latent…</h3>
             <p style={{ fontSize: '0.9rem' }}>
@@ -161,7 +161,7 @@ const IndividualPredictor = () => {
             <h4 style={{ color: '#a1a1aa', margin: 0, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>
               Forecast Result
             </h4>
-            <h1 style={{ fontSize: '4.5rem', color: risk.color, margin: '8px 0', fontWeight: '800' }}>
+            <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: risk.color, margin: '8px 0', fontWeight: '800' }}>
               {result.predicted_score}%
             </h1>
             <p style={{ color: '#ffffff', fontSize: '1.1rem', marginBottom: '10px', fontWeight: '600' }}>
