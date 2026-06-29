@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { API_BASE_URL } from '../config';
 import { FileDown, Activity, Users, Target, InboxIcon, Search, Trash2 } from 'lucide-react';
 
 /** Map predicted score to risk band */
@@ -23,7 +24,7 @@ const Dashboard = () => {
   const fetchBatchAnalytics = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:8000/analytics/current-batch');
+      const res = await axios.get(`${API_BASE_URL}/analytics/current-batch`);
       setAnalytics(res.data);
     } catch (err) {
       console.error('Dashboard sync failed:', err);
@@ -52,7 +53,7 @@ const Dashboard = () => {
     if (!window.confirm('Clear all batch data? This cannot be undone.')) return;
     setClearing(true);
     try {
-      await axios.delete('http://localhost:8000/analytics/reset');
+      await axios.delete(`${API_BASE_URL}/analytics/reset`);
       setAnalytics({ total: 0, mean: 0, atRisk: 0, moderateRisk: 0, safe: 0, chartData: [], detailed_results: [] });
       setSearchTerm('');
     } catch (err) { console.error('Clear failed:', err); }

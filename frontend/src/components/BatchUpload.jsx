@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Upload, CheckCircle, Info } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const BatchUpload = () => {
   const [file,      setFile]      = useState(null);
@@ -14,7 +15,7 @@ const BatchUpload = () => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await axios.post('http://localhost:8000/predict/batch', formData);
+      const res = await axios.post(`${API_BASE_URL}/predict/batch`, formData);
       setStats(res.data);
     } catch (err) {
       console.error(err);

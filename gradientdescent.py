@@ -1,26 +1,3 @@
-"""
-gradient_descent_demo.py
-========================
-This file demonstrates THREE implementations of Multiple Linear Regression:
-
-  1. GRADIENT DESCENT (From Scratch) — iteratively finds β by following
-                                        the slope of the cost function downhill.
-                                        This is the "learning" algorithm.
-
-  2. NORMAL EQUATION  (From Scratch) — solves for β in one exact computation.
-                                        Fast but no "learning" steps visible.
-
-  3. SCIKIT-LEARN     (Production)   — uses the Normal Equation internally.
-
-The key educational point: Gradient Descent and the Normal Equation both
-arrive at the same β values — they are just two different roads to the
-same destination.
-
-Author : Hilary Omondi Otieno
-Reg No : CCS/00036/022
-Project: Student Academic Performance Forecasting (MLR) — Maseno University
-"""
-
 import math
 import numpy as np
 import pandas as pd

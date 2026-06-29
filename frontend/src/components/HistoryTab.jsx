@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, History, CloudDownload, RefreshCw, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const getRiskColor = (score) => {
   if (score < 40) return '#f87171';
@@ -19,7 +20,7 @@ const HistoryTab = () => {
   const fetchHistory = async (offset = 0) => {
     setLoading(true); setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/history?skip=${offset}&limit=${PAGE_SIZE}`);
+      const response = await fetch(`${API_BASE_URL}/history?skip=${offset}&limit=${PAGE_SIZE}`);
       if (!response.ok) throw new Error('Failed to fetch prediction history');
       const data = await response.json();
       setHistory(data.records || []);

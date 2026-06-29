@@ -1,13 +1,3 @@
-"""
-compare.py
-----------
-Academic comparison of multiple regression algorithms on the student dataset.
-This script is for research/analysis only — it does NOT save a model file.
-
-The production model (LinearRegression) is trained exclusively in ml/train_model.py.
-Ridge Regression, Random Forest, and Gradient Boosting are shown here for comparison.
-"""
-
 import pandas as pd
 import numpy as np
 import math
