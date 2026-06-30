@@ -1,9 +1,4 @@
-"""
-ml/track_learning.py
---------------------
-Demonstrates online / incremental learning using SGDRegressor — for academic
-illustration of gradient descent. Uses the correct 4 feature columns.
-"""
+
 
 import sys
 import os

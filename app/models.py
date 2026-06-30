@@ -4,7 +4,7 @@ from .database import Base
 
 
 class StudentRecord(Base):
-    """Individual prediction records."""
+
     __tablename__ = "individual_predictions"
 
     id                  = Column(Integer, primary_key=True, index=True)
@@ -26,7 +26,7 @@ class StudentRecord(Base):
 
 
 class BatchRecord(Base):
-    """Current batch upload — replaced on every new upload."""
+
     __tablename__ = "current_batch"
 
     id              = Column(Integer, primary_key=True, index=True)
@@ -45,7 +45,7 @@ class BatchRecord(Base):
 
 
 class PredictionHistory(Base):
-    """Append-only log of every individual and batch prediction."""
+    
     __tablename__ = "prediction_history"
 
     id                  = Column(Integer, primary_key=True, index=True)

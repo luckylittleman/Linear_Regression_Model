@@ -1,19 +1,3 @@
-"""
-app/main.py
------------
-FastAPI backend for Student Academic Performance Forecasting.
-
-Features accepted by the prediction endpoints:
-  attendance_rate  – 0–100 %
-  cat_score        – 0–100
-  prev_mean_grade  – 0–100
-  helb_status      – 0 | 1
-
-Risk bands (proposal thresholds):
-  < 40  → High Risk    (Red)
-  40–59 → Moderate Risk (Amber)
-  ≥ 60  → Safe          (Green)
-"""
 
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,7 +19,11 @@ app = FastAPI(title="Student Analytics API", version="2.0.0")
 # ── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        os.getenv("FRONTEND_URL", ""),
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

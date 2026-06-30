@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { User, BookOpen, Activity, CheckCircle, AlertTriangle, TrendingUp, Brain, RotateCcw, Printer, AlertCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 /** Map predicted score to a traffic-light risk profile */
 const getRiskProfile = (score) => {
-  if (score < 40) return { label: 'High Risk',      color: '#f87171', bg: 'rgba(248,113,113,0.12)',  icon: AlertTriangle };
-  if (score < 60) return { label: 'Moderate Risk',  color: '#fbbf24', bg: 'rgba(251,191,36,0.12)',   icon: TrendingUp   };
-  return              { label: 'Safe',              color: '#34d399', bg: 'rgba(52,211,153,0.12)',   icon: CheckCircle  };
+  if (score < 40) return { label: 'High Risk', color: '#f87171', bg: 'rgba(248,113,113,0.12)', icon: AlertTriangle };
+  if (score < 60) return { label: 'Moderate Risk', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', icon: TrendingUp };
+  return { label: 'Safe', color: '#34d399', bg: 'rgba(52,211,153,0.12)', icon: CheckCircle };
 };
 
 const FEATURE_LABELS = {
   attendance_rate: { name: 'Attendance Rate', icon: '📅' },
-  cat_score:       { name: 'CAT Score',       icon: '📝' },
-  prev_mean_grade: { name: 'Previous Grade',  icon: '📊' },
-  helb_status:     { name: 'HELB Status',     icon: '💰' },
+  cat_score: { name: 'CAT Score', icon: '📝' },
+  prev_mean_grade: { name: 'Previous Grade', icon: '📊' },
+  helb_status: { name: 'HELB Status', icon: '💰' },
 };
 
 const IndividualPredictor = () => {
@@ -23,9 +24,9 @@ const IndividualPredictor = () => {
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const [result,   setResult]   = useState(null);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState(null);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handlePredict = async () => {
     if (!formData.student_name || !formData.attendance_rate || !formData.cat_score || !formData.prev_mean_grade) {
@@ -35,13 +36,13 @@ const IndividualPredictor = () => {
     setError(null);
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8000/predict/individual', {
-        student_name:    formData.student_name,
-        reg_no:          formData.reg_no || '—',
+      const res = await axios.post(`${API_BASE_URL}/predict/individual`, {
+        student_name: formData.student_name,
+        reg_no: formData.reg_no || '—',
         attendance_rate: parseFloat(formData.attendance_rate),
-        cat_score:       parseFloat(formData.cat_score),
+        cat_score: parseFloat(formData.cat_score),
         prev_mean_grade: parseFloat(formData.prev_mean_grade),
-        helb_status:     parseInt(formData.helb_status, 10),
+        helb_status: parseInt(formData.helb_status, 10),
       });
       setResult(res.data);
     } catch (err) {
@@ -245,9 +246,9 @@ const IndividualPredictor = () => {
   );
 };
 
-const labelStyle        = { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.8rem', color: '#a1a1aa' };
-const inputStyle        = { width: '100%', padding: '12px', background: '#090a1e', border: '1px solid #2b2d42', color: 'white', borderRadius: '8px', boxSizing: 'border-box', outline: 'none', fontSize: '0.9rem' };
-const btnStyle          = { width: '100%', padding: '16px', background: '#2dd4bf', border: 'none', color: '#090a1e', fontWeight: '700', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem' };
+const labelStyle = { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.8rem', color: '#a1a1aa' };
+const inputStyle = { width: '100%', padding: '12px', background: '#090a1e', border: '1px solid #2b2d42', color: 'white', borderRadius: '8px', boxSizing: 'border-box', outline: 'none', fontSize: '0.9rem' };
+const btnStyle = { width: '100%', padding: '16px', background: '#2dd4bf', border: 'none', color: '#090a1e', fontWeight: '700', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem' };
 const secondaryBtnStyle = { background: 'transparent', border: '1px solid #2b2d42', color: '#a1a1aa', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' };
 
 export default IndividualPredictor;

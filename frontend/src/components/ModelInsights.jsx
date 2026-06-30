@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Info, TrendingUp, Hash, BarChart2 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
+
 
 const ModelInsights = () => {
   const [modelData, setModelData] = useState({
@@ -13,17 +15,17 @@ const ModelInsights = () => {
 
   const fetchModelConfig = async () => {
     try {
-      const response = await fetch('http://localhost:8000/model/config');
+      const response = await fetch(`${API_BASE_URL}/model/config`);
       const data = await response.json();
       setModelData({
-        weights:      data.weights      || [],
-        intercept:    data.intercept    ?? 0,
-        r2_score:     data.r2_score     ?? null,
-        rmse:         data.rmse         ?? null,
-        cv_mean_r2:   data.cv_mean_r2   ?? null,
+        weights: data.weights || [],
+        intercept: data.intercept ?? 0,
+        r2_score: data.r2_score ?? null,
+        rmse: data.rmse ?? null,
+        cv_mean_r2: data.cv_mean_r2 ?? null,
         cv_mean_rmse: data.cv_mean_rmse ?? null,
         records_used: data.records_used ?? 0,
-        status:       data.status       || 'active',
+        status: data.status || 'active',
       });
     } catch (err) {
       console.error('Failed to fetch model config:', err);
@@ -156,9 +158,9 @@ const ModelInsights = () => {
   );
 };
 
-const statBox   = { display: 'flex', gap: '14px', padding: '13px', background: '#0c0d21', borderRadius: '8px', border: '1px solid #2b2d42', alignItems: 'flex-start' };
+const statBox = { display: 'flex', gap: '14px', padding: '13px', background: '#0c0d21', borderRadius: '8px', border: '1px solid #2b2d42', alignItems: 'flex-start' };
 const statLabel = { margin: 0, fontSize: '0.75rem', color: '#a1a1aa', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' };
 const statValue = (color) => ({ margin: '4px 0 2px', fontSize: '1.05rem', fontWeight: '700', color });
-const statHint  = { margin: 0, fontSize: '0.72rem', color: '#64748b', lineHeight: '1.4' };
+const statHint = { margin: 0, fontSize: '0.72rem', color: '#64748b', lineHeight: '1.4' };
 
 export default ModelInsights;

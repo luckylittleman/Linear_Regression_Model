@@ -1,9 +1,4 @@
-"""
-ml/inspect_math.py
-------------------
-Prints the learned regression equation for inspection.
-Load the production model from the project root.
-"""
+
 
 import os
 import joblib
