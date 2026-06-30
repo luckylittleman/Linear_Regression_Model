@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { User, BookOpen, Activity, CheckCircle, AlertTriangle, TrendingUp, Brain, RotateCcw, Printer, AlertCircle } from 'lucide-react';
+import { User, BookOpen, Activity, CheckCircle, AlertTriangle, TrendingUp, Brain, RotateCcw, Download, AlertCircle } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 /** Map predicted score to a traffic-light risk profile */
 const getRiskProfile = (score) => {
@@ -54,6 +56,44 @@ const IndividualPredictor = () => {
   };
 
   const handleClear = () => { setFormData(initialFormState); setResult(null); setError(null); };
+
+  const resultRef = useRef(null);
+
+  const handleDownloadPDF = async () => {
+    if (!resultRef.current) return;
+    try {
+      const canvas = await html2canvas(resultRef.current, {
+        backgroundColor: '#0c0d21',
+        scale: 2,
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Header
+      pdf.setFillColor(9, 10, 30);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      pdf.setTextColor(45, 212, 191);
+      pdf.setFontSize(18);
+      pdf.text('Student Performance Forecast', pageWidth / 2, 20, { align: 'center' });
+      pdf.setTextColor(161, 161, 170);
+      pdf.setFontSize(10);
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 28, { align: 'center' });
+
+      // Result image
+      const imgWidth = pageWidth - 30;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 15, 35, imgWidth, imgHeight);
+
+      const studentName = formData.student_name || 'student';
+      const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
+      pdf.save(`${safeName}_prediction.pdf`);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+    }
+  };
 
   const risk = result ? getRiskProfile(result.predicted_score) : null;
 
@@ -150,11 +190,11 @@ const IndividualPredictor = () => {
             </p>
           </div>
         ) : (
-          <div style={{ padding: '20px', animation: 'fadeIn 0.4s ease-in' }}>
+          <div ref={resultRef} style={{ padding: '20px', animation: 'fadeIn 0.4s ease-in' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => window.print()} className="no-print"
-                style={{ background: 'none', border: 'none', color: '#2dd4bf', cursor: 'pointer', padding: '4px' }}>
-                <Printer size={18} />
+              <button onClick={handleDownloadPDF} className="no-print"
+                style={{ background: 'none', border: 'none', color: '#2dd4bf', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}>
+                <Download size={16} /> PDF
               </button>
             </div>
 
