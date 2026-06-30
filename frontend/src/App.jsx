@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, UserCheck, FileUp, BarChart3, Settings } from 'lucide-react';
+import React, { useState, Suspense, lazy } from 'react';
+import { LayoutDashboard, UserCheck, FileUp, BarChart3, Settings, Loader } from 'lucide-react';
 
-import ModelInsights from './components/ModelInsights';
-import Dashboard from './components/Dashboard';
-import IndividualPredictor from './components/IndividualPredictor';
-import BatchUpload from './components/BatchUpload';
-import HistoryTab from './components/HistoryTab';
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const IndividualPredictor = lazy(() => import('./components/IndividualPredictor'));
+const BatchUpload = lazy(() => import('./components/BatchUpload'));
+const ModelInsights = lazy(() => import('./components/ModelInsights'));
+const HistoryTab = lazy(() => import('./components/HistoryTab'));
+
+const PageLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '80px 0', color: '#2dd4bf' }}>
+    <Loader size={28} className="spin" />
+  </div>
+);
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -96,21 +102,23 @@ function App() {
           </header>
 
           {/* Content Switcher */}
-          <section>
-            {activeTab === 'dashboard'  && <Dashboard />}
-            {activeTab === 'individual' && <IndividualPredictor />}
-            {activeTab === 'batch'      && <BatchUpload />}
-            {activeTab === 'insights'   && <ModelInsights />}
-            {activeTab === 'history'    && <HistoryTab />}
+          <Suspense fallback={<PageLoader />}>
+            <section>
+              {activeTab === 'dashboard'  && <Dashboard />}
+              {activeTab === 'individual' && <IndividualPredictor />}
+              {activeTab === 'batch'      && <BatchUpload />}
+              {activeTab === 'insights'   && <ModelInsights />}
+              {activeTab === 'history'    && <HistoryTab />}
 
-            {activeTab === 'settings' && (
-              <div className="card" style={{ padding: '40px', textAlign: 'center', color: '#a1a1aa' }}>
-                <Settings size={48} style={{ marginBottom: '15px', opacity: 0.5 }} />
-                <h3 style={{ color: '#e2e8f0' }}>Model Configurations</h3>
-                <p>Adjust hyperparameters and retrain triggers here.</p>
-              </div>
-            )}
-          </section>
+              {activeTab === 'settings' && (
+                <div className="card" style={{ padding: '40px', textAlign: 'center', color: '#a1a1aa' }}>
+                  <Settings size={48} style={{ marginBottom: '15px', opacity: 0.5 }} />
+                  <h3 style={{ color: '#e2e8f0' }}>Model Configurations</h3>
+                  <p>Adjust hyperparameters and retrain triggers here.</p>
+                </div>
+              )}
+            </section>
+          </Suspense>
         </main>
       </div>
     </div>

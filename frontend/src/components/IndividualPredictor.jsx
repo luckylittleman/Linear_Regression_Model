@@ -2,8 +2,6 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { User, BookOpen, Activity, CheckCircle, AlertTriangle, TrendingUp, Brain, RotateCcw, Download, AlertCircle } from 'lucide-react';
 import { API_BASE_URL } from '../config';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 /** Map predicted score to a traffic-light risk profile */
 const getRiskProfile = (score) => {
@@ -62,6 +60,10 @@ const IndividualPredictor = () => {
   const handleDownloadPDF = async () => {
     if (!resultRef.current) return;
     try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
       const canvas = await html2canvas(resultRef.current, {
         backgroundColor: '#0c0d21',
         scale: 2,
